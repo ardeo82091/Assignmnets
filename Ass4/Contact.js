@@ -2,43 +2,49 @@ class User
 {
     static userId = 100;
     static allUsers = [];
-    constructor(firstName,lastName,role)
+    constructor(firstName,lastName,username,role)
     {
         this.UserId = User.userId++;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.username = username;
         this.role = role;
         this.isActive = true;
         this.contacts = [];
     }
 
-    createNewUser(firstname,lastName,role)
+    createNewUser(firstname,lastName,username, role)
     {
         if(this.role != "admin")
         return [-1,"Please Specify the role to Admin to create a User"]
-        let newUser = new User(firstname,lastName,role);
+        let [indexOfUser,isUsernameexist] = User.#findUser(username)
+        if(isUsernameexist){
+            console.log("Username already exists");
+            return [-1,"Already Exists Username"]
+        }
+        let newUser = new User(firstname,lastName,username, role);
         User.allUsers.push(newUser);
         return [newUser,"New User created"];
     }
 
-    isUser(fullName)
+    static #findUser(username)
     {
         for(let index=0; index<User.allUsers.length; index++)
         {
             let user = User.allUsers; 
-            if(`${user[index].firstName} ${user[index].lastName}` == fullName)
+            if(user[index].username = username)
             return [index,true];
         }
         return [-1,false];
     }
 
-    adminDeleteUser(fullName)
+    adminDeleteUser(username)
     {
         if (this.isActive==false){
             return [-1,"user not Exist"];
         }
         if(this.role != "admin") return[this.role,`Please specify the role to admin to delete ${fullName}`]
-        let [indexOfUser, isUserExist] = this.isUser(fullName);
+        let [indexOfUser, isUserExist] = User.#findUser(username);
         if(isUserExist == false)
         {
             return[-1,"User not Exists, Please give the correct name."];
@@ -135,9 +141,9 @@ class ContactDetail
     }
 }
 
-const ankit = new User("Ankit","Raj","admin");
+const ankit = new User("Ankit","Raj","ankit","admin");
 console.log(ankit);
-let [abhishek, Information] = ankit.createNewUser("Abhishek","Singh","user");
+let [abhishek, Information] = ankit.createNewUser("Abhishek","Singh","abhishek","user");
 console.log(abhishek);
 console.log(ankit);
 abhishek.createNewContact("Aarohi","Kashyap");
@@ -155,4 +161,5 @@ abhishek.deleteUserContact("Aarohi","Kashyap");
 abhishek.getContact("Aarohi Kashyap");
 
 ankit.adminDeleteUser("Abhishek Singh");
-console.log(abhishek);
+console.log(abhishek)
+let [abhi,message] = ankit.createNewUser("Raj","Singh", "abhishek", "user");
