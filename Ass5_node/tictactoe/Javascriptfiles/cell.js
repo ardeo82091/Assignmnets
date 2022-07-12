@@ -1,20 +1,14 @@
-const player = require('./player');
-class Cell
-{
-    constructor()
-    {
-        this.mark = "";
+const {Player} = require('./player');
+class Cell{
+    constructor(){
+        this.mark="";
     }
-
-    isMark()
-    {
+    isMarked(){
         return this.mark != "";
     }
-
-    markCell(player)
-    {
-        this.mark = player.symbol;
+    markCell(player){
+        this.mark=player.symbol
     }
 }
 
-module.export = {Cell};
+module.exports = {Cell};
