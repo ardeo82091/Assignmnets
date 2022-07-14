@@ -1,5 +1,14 @@
-const {Game} = require('./javascriptfile/game.js');
+const {Game} = require('./model/game.js');
 
 const newGame = new Game("Ankit Raj", "Abhishek");
-newGame.addCard();
-newGame.addCard();
+const ankit = new Game("Ankit Raj", "Abhishek Sharma"); 
+ankit.addCard()
+ankit.addCard()
+ankit.addCard()
+ankit.addCard()
+ankit.addCard()
+ankit.addCard()
+ankit.addCard()
+ankit.addCard()
+console.log(ankit.player1)
+console.log(ankit.player2)
