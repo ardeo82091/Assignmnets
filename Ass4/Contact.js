@@ -81,26 +81,19 @@ class User
         return [nil,"Contact not exist"]
 
     }
-
-    addContactDetail(firstName,lastName,type,value)
+    
+    createContactDetail(fullName,type,value)
     {
-        if(this.isActive == false) return [false, "User is not active"];
-        let [indexofContact,iscontactexist] = this.indexOfContact(`${firstName} ${lastName}`);
-        if(iscontactexist == false) return [false, "User not found"];
-
-        let newContactDetail = new ContactDetail(type,value);
-        this.contacts[indexofContact].contactDetails.push(newContactDetail);
-        return[newContactDetail,"Contact Detail Added"];
-    }
-
-    getContact(fullName)
-    {
+        if(this.isActive == false) return [null ,false,"User is not active"];
         let [indexofContact,iscontactexist] = this.indexOfContact(fullName);
-        if(iscontactexist == false) 
+        if(iscontactexist == false) return [null,false, "User not found"];
+
+        let [isContactDetailsCreated,newContactDetail] = this.contacts[indexofContact].createContactDetails(type,value);
+        if(isContactDetailsCreated== false)
         {
-            return ([false, "User not found"]);
+            return [null,false, "This contact is not Active"];
         }
-        console.log(this.contacts[indexofContact].contactDetails);
+        return [newContactDetail,true,"Contact Detail Added"];
     }
 }
 
@@ -114,6 +107,15 @@ class Contact
         this.lastName = lastName;
         this.isContactActive = true;
         this.contactDetails = [];
+    }
+
+    createContactDetails(type,value){
+        if(this.isActive==false){
+            return [false,null]
+        }
+        const newcontactDetails = new ContactDetail(type, value)
+        this.contactDetails.push(newcontactDetails)
+        return [true , newcontactDetails]
     }
 
     isContactExist(fullName)
@@ -150,15 +152,11 @@ abhishek.createNewContact("Aarohi","Kashyap");
 abhishek.createNewContact("Divya","Patle");
 console.log(abhishek);
 
-abhishek.addContactDetail("Divya","Patle","email","divyapatle@123");
-abhishek.addContactDetail("Arohi","Kashyap","email","aarohie@123");
-abhishek.addContactDetail("Aarohi","Kashyap","email","aarohikashyape@123");
+abhishek.createContactDetail("Divya","Patle","email","divyapatle@123");
+abhishek.createContactDetail("Arohi","Kashyap","email","aarohie@123");
+abhishek.createContactDetail("Aarohi","Kashyap","email","aarohikashyape@123");
 
-abhishek.getContact("Divya Patle");
-abhishek.getContact("Aarohi kashyap");
-abhishek.getContact("Aarohi Kashyap");
 abhishek.deleteUserContact("Aarohi","Kashyap");
-abhishek.getContact("Aarohi Kashyap");
 
 ankit.adminDeleteUser("Abhishek Singh");
 console.log(abhishek)
