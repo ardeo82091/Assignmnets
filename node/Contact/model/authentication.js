@@ -1,0 +1,21 @@
+const jwt = require("jsonwebtoken")
+const Credential = require("./credential")
+class JWTPayload{
+    static secratekey = "strongPassword";
+    constructor(user){
+        this.userName = user.credential.userName;
+        this.role = user.role;
+        this.firstName = user.firstName;
+        this.isActive = user.isActive;
+    }
+    createToken()
+    {
+        return jwt.sign(JSON.stringify(this),JWTPayload.secratekey)
+    }
+    verifyCookie(token)
+    {
+        return jwt.verify(token,JWTPayload.secratekey)
+    }
+}
+
+module.exports = JWTPayload;
