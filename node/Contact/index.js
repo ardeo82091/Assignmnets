@@ -6,13 +6,13 @@ const app = express();
 const cookieParser = require('cookie-parser')
 app.use(cors())
 app.use(bodyParser.json())
-
+app.use(cookieParser())
 
 const User = require('./model/User.js');
 const JWTPayload = require('./model/authentication.js');
 const Contact = require('./model/contact.js');
 
-const [admin,message] = User.createAdmin();
+const [admin,message] = User.createAdmin("ankit","ankit@123","Ankit","Raj");
 app.post("/api/v1/login",(req,resp)=>{
     const {userName,password}= req.body
     let [indexOfUser,isUsenameExist] = User.findUser(userName);
@@ -22,14 +22,19 @@ app.post("/api/v1/login",(req,resp)=>{
         return;
     }
     const newPayload = new JWTPayload(User.allUsers[indexOfUser])
-    const newToken = newPayload.createToken()
-    resp.cookie("myToken",newToken),{
-        expires:new Date(Date.now()+1*100000)
-    }
+    const newToken = newPayload.createToken();
+    resp.cookie("myToken",newToken)
+    //,{
+    //    expires:new Date(Date.now()+1*100000)
+    //}
     resp.status(200).send("Loggin Done");
 })
 
 app.post("/api/v1/createuser",(req,resp)=>{
+    const isValidAdmin =  JWTPayload.isValidAdmin(req,resp)
+    if(!isValidAdmin){
+        return;
+    }
     let {firstName,lastName,userName ,password,role} = req.body;
     let [newUser,message]=admin.createNewUser(firstName,lastName,userName,password,role);
     if(newUser == null )
@@ -42,10 +47,18 @@ app.post("/api/v1/createuser",(req,resp)=>{
 })
 
 app.get("/api/v1/getUser",(req,resp)=>{
+    const isValidAdmin =  JWTPayload.isValidAdmin(req,resp)
+    if(!isValidAdmin){
+        return;
+    }
     resp.status(201).send(User.allUsers)
 })
 
 app.put("/api/v1/updateUser",(req,resp)=>{
+    const isValidAdmin =  JWTPayload.isValidAdmin(req,resp)
+    if(!isValidAdmin){
+        return;
+    }
     let {userName,propertyToUpdate,value} = req.body;
     let [indexOfUser,isUserExist] = User.findUser(userName);
     if(!isUserExist)
@@ -63,6 +76,10 @@ app.put("/api/v1/updateUser",(req,resp)=>{
 })
 
 app.post("/api/v1/createContact/:userName",(req,resp)=>{
+    const isValidUser =  JWTPayload.isValidUser(req,resp)
+    if(!isValidUser){
+        return;
+    }
     const {firstName,lastName} = req.body;
     const userName = req.params.userName;
     let [indexOfUser,isUserExist] = User.findUser(userName);
@@ -81,7 +98,26 @@ app.post("/api/v1/createContact/:userName",(req,resp)=>{
     return message;
 })
 
+app.get("/api/v1/getAllContacts/",(req,resp)=>{
+    const isValidUser =  JWTPayload.isValidUser(req,resp)
+    if(!isValidUser){
+        return "unauthorized access"
+    }
+    const userName = req.body.userName;
+    const [indexOfUser,isUserExist] = User.findUser(userName)
+    if(!isUserExist){
+        resp.status(504).send("User not Exist");
+       return;
+    }
+
+    resp.status(200).send(User.allUsers[indexOfUser].contacts)
+})
+
 app.post("/api/v1/deleteUserContact/:userName",(req,resp)=>{
+    const isValidUser =  JWTPayload.isValidUser(req,resp)
+    if(!isValidUser){
+        return "unauthorized access"
+    }
     let userName = req.params.userName;
     let {firstName,lastName} = req.body;
     let fullName = `${firstName} ${lastName}`;
@@ -102,7 +138,11 @@ app.post("/api/v1/deleteUserContact/:userName",(req,resp)=>{
 })
 
 app.post("/api/v1/adminDeleteUser",(req,resp)=>{
-    let userName = req.body;
+    const isValidAdmin =  JWTPayload.isValidAdmin(req,resp)
+    if(!isValidAdmin){
+        return;
+    }
+    let userName = req.body.userName;
     let [indexOfUser,isUserExist] = User.findUser(userName);
     if(!isUserExist)
     {
@@ -120,6 +160,10 @@ app.post("/api/v1/adminDeleteUser",(req,resp)=>{
 })
 
 app.post("/api/v1/createContactDetail/:userName/:firstName/:lastName",(req,resp)=>{
+    const isValidUser =  JWTPayload.isValidUser(req,resp)
+    if(!isValidUser){
+        return "unauthorized access"
+    }
     let userName = req.params.userName;
     let [indexOfUser,isUserExist] = User.findUser(userName)
     if(!isUserExist)
@@ -137,9 +181,20 @@ app.post("/api/v1/createContactDetail/:userName/:firstName/:lastName",(req,resp)
         return;
     }
     const {type,value} = req.body;
-    let [isContactDetailsAdded,newContactDetail] = User.allUsers[indexOfUser].contacts[indexOfContact].createContactDetails(type,value);
-    resp.status(200).send(newContactDetail);
+    let [isContactDetailsAdded,message] = User.allUsers[indexOfUser].contacts[indexOfContact].createContactDetails(type,value);
+    if(!isContactDetailsAdded){
+        resp.status(504).send(message)
+        return;
+    }
+    resp.status(200).send(message);
     return message;
+})
+
+app.post("/api/v1/logout",(req,resp)=>{
+    resp.cookie("myToken",'none',{
+        expires: new Date(Date.now()+ 0*1000),
+    })
+    resp.status(200).send("User Logged out Successfully");
 })
 
 app.listen(8082,()=>{

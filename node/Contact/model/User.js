@@ -16,12 +16,12 @@ class User
         this.contacts = [];
     }
 
-    static createAdmin()
+    static createAdmin(username,passworD,firstname,lastname)
     {
-        const userName = "ankit";
-        const password = "ankit@123";
-        const firstName = "Ankit";
-        const lastName = "Raj";
+        let userName = username;
+        const password = passworD;
+        const firstName = firstname;
+        const lastName = lastname;
         const role = "admin";
         const [flag,message,newCredential] = Credentials.createCredential(userName,password);
         const admin = new User(firstName,lastName,newCredential,role)

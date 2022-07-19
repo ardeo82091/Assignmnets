@@ -13,11 +13,18 @@ class Contact
 
     createContactDetails(type,value){
         if(this.isActive==false){
-            return [false,null]
+            return [false,"Contact not found"]
+        }
+        for(let index=0; index<this.contactDetails.length; index++)
+        {
+            if(this.contactDetails[index].type == type) 
+            {
+                return [false,"type already exist"];
+            }
         }
         const newcontactDetails = new ContactDetail(type, value)
         this.contactDetails.push(newcontactDetails)
-        return [true , newcontactDetails]
+        return [true , "ContactDetail is created"]
     }
 
     isContactExist(fullName)

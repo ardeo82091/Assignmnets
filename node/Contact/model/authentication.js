@@ -12,9 +12,44 @@ class JWTPayload{
     {
         return jwt.sign(JSON.stringify(this),JWTPayload.secratekey)
     }
-    verifyCookie(token)
+    static verifyCookie(token)
     {
         return jwt.verify(token,JWTPayload.secratekey)
+    }
+    static isValidUser(req,resp)
+    {
+        const myToken = req.cookies["myToken"];
+        if(!myToken)
+        {
+            resp.status(504).send("Login required");
+            return false
+        }
+
+        const newPayload = JWTPayload.verifyCookie(myToken);
+        if(!newPayload.isActive)
+        {
+            resp.status(504).send("Admin Login Required");
+            return false
+        }
+        return true
+    }
+
+    static isValidAdmin(req,resp)
+    {
+        const myToken = req.cookies["myToken"];
+        if(!myToken)
+        {
+            resp.status(504).send("Login required");
+            return false
+        }
+
+        const newPayload = JWTPayload.verifyCookie(myToken);
+        if(newPayload.role != "admin")
+        {
+            resp.status(504).send("Admin Login Required");
+            return false
+        }
+        return true
     }
 }
 
