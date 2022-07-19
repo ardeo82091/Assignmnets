@@ -30,13 +30,13 @@ app.post("/api/v1/login",(req,resp)=>{
     resp.status(200).send("Loggin Done");
 })
 
-app.post("/api/v1/createuser",(req,resp)=>{
+app.post("/api/v1/createuser",async (req,resp)=>{
     const isValidAdmin =  JWTPayload.isValidAdmin(req,resp)
     if(!isValidAdmin){
         return;
     }
     let {firstName,lastName,userName ,password,role} = req.body;
-    let [newUser,message]=admin.createNewUser(firstName,lastName,userName,password,role);
+    let [newUser,message]=await admin.createNewUser(firstName,lastName,userName,password,role);
     if(newUser == null )
     {
         resp.status(504).send(message);

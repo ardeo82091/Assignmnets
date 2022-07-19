@@ -29,7 +29,7 @@ class User
         return [admin,"Admin created Successfully"];
     }
 
-    createNewUser(firstname,lastName,userName, password, role)
+    async createNewUser(firstname,lastName,userName, password, role)
     {
         if(this.isActive == false) return [null,"Not able to create an User"];
         if(this.role != "admin") return [null,"Please Specify the role to Admin to create a User"];
@@ -38,6 +38,7 @@ class User
             return [null,"Already Exists userName"]
         }
         const newCredential = new Credentials(userName,password);
+        newCredential.password = await newCredential.getHashPassword();
         const newUser = new User(firstname,lastName,newCredential, role);
         User.allUsers.push(newUser);
         return [newUser,"New User created"];

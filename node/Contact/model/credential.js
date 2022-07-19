@@ -1,4 +1,5 @@
 const uuid = require('uuid');
+const bcrypt = require('bcrypt');
 class Credentials
 {
     static allCredentials = [];
@@ -7,6 +8,10 @@ class Credentials
         this.userName = userName;
         this.password = password;
         this.CredentialId = uuid.v4();
+    }
+
+    async getHashPassword(){
+        return bcrypt.hash(this.password,10);
     }
 
     static finduserName(userName)
