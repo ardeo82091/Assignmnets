@@ -2,7 +2,6 @@ const ContactDetail = require("./contactDetail")
 const uuid = require("uuid");
 class Contact
 {
-    static contactID =1000;
     constructor(firstName,lastName)
     {
         this.contactId = uuid.v4();

@@ -1,6 +1,5 @@
 class ContactDetail
 {
-    static contactDetailId =0;
     constructor(type, value)
     {
         this.contactDetailId = uuid.v4();
