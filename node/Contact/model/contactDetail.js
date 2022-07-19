@@ -3,7 +3,7 @@ class ContactDetail
     static contactDetailId =0;
     constructor(type, value)
     {
-        this.contactDetailId = ContactDetail.contactDetailId++;
+        this.contactDetailId = uuid.v4();
         this.type = type;
         this.value = value;
     }

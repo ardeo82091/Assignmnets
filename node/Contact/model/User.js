@@ -1,13 +1,13 @@
 const Contact = require('./contact.js');
 const ContactDetail = require('./contactDetail.js');
 const Credentials = require('./credential');
+const uuid = require('uuid');
 class User
 {
-    static userId = 100;
     static allUsers = [];
     constructor(firstName,lastName,credential,role)
     {
-        this.UserId = User.userId++;
+        this.UserId = uuid.v4();
         this.firstName = firstName;
         this.lastName = lastName;
         this.credential = credential;
