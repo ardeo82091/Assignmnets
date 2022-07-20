@@ -18,7 +18,7 @@ class Credentials
     {
         for(let index = 0; index <Credentials.allCredentials.length; index++)
         {
-            if(Credentials.allCredentials[index].usernameuserName == userName)
+            if(Credentials.allCredentials[index].userName == userName)
             {
                 return [true,index];
             }
