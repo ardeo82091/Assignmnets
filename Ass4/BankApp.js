@@ -39,6 +39,14 @@ class Account {
         this.bankAbbrevation = bankname
         this.balance = 1000
     }
+
+    isAccountexist(bankAbbrevation){
+        return this.bankAbbrevation==bankAbbrevation;
+    }
+
+    isSufficientBalance(amount){
+        return this.balance>=amount;
+    }
 }
 
 
@@ -46,7 +54,7 @@ class Customer {
     static allCustomers = [];
     static customerId = 0;
     constructor(fullname) {
-        this.customerId = ++Customer.customerId
+        this.customerId = ++Customer.customerId;
         this.fullname = fullname
         this.account = []
         this.totalBalance = 0
@@ -65,7 +73,7 @@ class Customer {
                 return [index, true]
             }
         }
-        return ["Customer not Exists", false]
+        return [-1, false]
     }
 
     updatetotalBalance() {
@@ -93,7 +101,7 @@ class Customer {
 
     isAccountExist(bankAbbrevation) {
         if (this.account.length == 0) {
-            [null, false]
+            return [-1, false];
         }
         for (let index = 0; index < this.account.length; index++) {
             const account = this.account[index];
@@ -101,22 +109,24 @@ class Customer {
                 return [index, true]
             }
         }
-        return [null, false]
+        return [-2, false];
     }
 
     withdraw(amount, bankAbrre)
     {
         let [indexOfBank, isAccountexist] = this.isAccountExist(bankAbrre);
         if(isAccountexist==false) return [false, "Account not Exists"];
-        if(this.account[indexOfBank].balance < amount ) return [false, "Not Sufficient Balance"];
+        if(this.account[indexOfBank].balance < amount ){console.log("Not Sufficient Balance") ;return [false, "Not Sufficient Balance"];}
         this.account[indexOfBank].balance -=  amount;
         this.updatetotalBalance();
+        console.log(this.account[indexOfBank].balance);
         return [true, "Successfull Withdraw"];
     }
 
     deposit(amount, bankAbrre)
     {
         let [indexOfBank, isAccountExist] = this.isAccountExist(bankAbrre);
+        console.log(indexOfBank, isAccountExist);
         if(isAccountExist==false) return [false, "Account not Exists"];
         this.account[indexOfBank].balance +=  amount;
         this.updatetotalBalance();
@@ -125,26 +135,27 @@ class Customer {
 
     transfer(amount, creditCustomer, creditBankAbbre, debitBankAbbre)
     {
-        let [customerId, customerExists] = Customer.findCustomer(creditCustomer);
-        if(!customerExists) return;
-        let checkWithDraw = this.withdraw(amount, debitBankAbbre);
+        let [indexOfCustomer, customerExists] = Customer.findCustomer(creditCustomer);
+        if(!customerExists) return [false,"Customer not exist"];
+        let [checkWithDraw,info] = this.withdraw(amount, debitBankAbbre);
+        console.log(checkWithDraw,info)
         if(!checkWithDraw)
         {
-            console.log("Withdraw Failed")
-            return false;
+            return [false,"Withdraw Failed"];
         }
-        let checkDeposit = this.deposit(amount, creditBankAbbre);
+        let [checkDeposit,message] = Customer.allCustomers[indexOfCustomer].deposit(amount, creditBankAbbre);
         if(!checkDeposit)
         {
-            console.log("Deposit Failed");
             this.deposit(amount, debitBankAbbre);
-            return false;
+            return [false,"Deposit Failed"];
         }
+        return[true,"Deposit Successfull"];
     }
 
     selfTransfer(amount, creditBankAbbre, debitBankAbbre)
     {
-        this.transfer(amount, this, creditBankAbbre, debitBankAbbre);
+        let [transfer,message]=this.transfer(amount, this.customerId, creditBankAbbre, debitBankAbbre);
+        return [transfer,message];
     }
 
 }
@@ -162,16 +173,25 @@ const ankit = Customer.createNewCustomer("Ankit", "Raj")
 console.log(ankit)
 
 ankit.createnewAccount("sbi");
+console.log(ankit)
 ankit.createnewAccount("pnb");
+console.log(ankit)
 ankit.createnewAccount("CB");
 console.log(ankit);
 
 ankit.withdraw(2000,"pnb");
+console.log(ankit)
 ankit.deposit(1100,"pnb");
-ankit.selfTransfer(500,"pnb","sbi");
+console.log(ankit)
+ankit.selfTransfer(500,"sbi","pnb");
+console.log(ankit)
 
 const singh = Customer.createNewCustomer("Raj", "Singh")
 console.log(singh)
 
 singh.createnewAccount("sbi")
-ankit.transfer(280,'pnb',2,"sbi")
+singh.deposit(1100,"sbi");
+console.log(singh)
+ankit.transfer(280,2,"sbi","pnb")
+console.log(ankit)
+console.log(singh)

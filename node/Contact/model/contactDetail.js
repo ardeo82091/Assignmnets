@@ -1,3 +1,4 @@
+const uuid = require('uuid');
 class ContactDetail
 {
     constructor(type, value)
