@@ -2,6 +2,7 @@ const Contact = require('./contact.js');
 const ContactDetail = require('./contactDetail.js');
 const Credentials = require('./credential');
 const uuid = require('uuid');
+const bcrypt = require('bcrypt');
 class User
 {
     static allUsers = [];
@@ -16,7 +17,7 @@ class User
         this.contacts = [];
     }
 
-    static createAdmin(username,passworD,firstname,lastname)
+    static async createAdmin(username,passworD,firstname,lastname)
     {
         let userName = username;
         const password = passworD;
@@ -24,6 +25,11 @@ class User
         const lastName = lastname;
         const role = "admin";
         const [flag,message,newCredential] = Credentials.createCredential(userName,password);
+        if(flag === false)
+        {
+            return [null,"Username already Exist"];
+        }
+        newCredential.password = await newCredential.getHashPassword();
         const admin = new User(firstName,lastName,newCredential,role)
         User.allUsers.push(admin);
         return [admin,"Admin created Successfully"];
@@ -37,11 +43,21 @@ class User
         if(isuserNameexist){
             return [null,"Already Exists userName"]
         }
-        const newCredential = new Credentials(userName,password);
+        
+        const [flag,message,newCredential] = Credentials.createCredential(userName,password);
+        if(flag === false)
+        {
+            return [null,"UserName already Exists"]
+        }
         newCredential.password = await newCredential.getHashPassword();
         const newUser = new User(firstname,lastName,newCredential, role);
         User.allUsers.push(newUser);
         return [newUser,"New User created"];
+    }
+
+    async comparePassword(password){
+        let isPassword = await bcrypt.compare(password, this.credential.password);
+        return isPassword;
     }
 
     static findUser(userName)

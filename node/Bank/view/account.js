@@ -1,3 +1,4 @@
+const Bank = require("./bank");
 class Account {
     static accountId = 100;
     constructor(bankname) {
@@ -11,6 +12,7 @@ class Account {
     }
 
     isSufficientBalance(amount){
-        return this.balance>=amount;
+        return this.balance>=1000;
     }
 }
+module.exports = Account;

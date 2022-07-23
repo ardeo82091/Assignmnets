@@ -169,29 +169,29 @@ console.log(pnb);
 const canra = Bank.createNewBank("Canra Bank", "CB");
 console.log(canra);
 
-const ankit = Customer.createNewCustomer("Ankit", "Raj")
-console.log(ankit)
+// const ankit = Customer.createNewCustomer("Ankit", "Raj")
+// console.log(ankit)
 
-ankit.createnewAccount("sbi");
-console.log(ankit)
-ankit.createnewAccount("pnb");
-console.log(ankit)
-ankit.createnewAccount("CB");
-console.log(ankit);
+// ankit.createnewAccount("sbi");
+// console.log(ankit)
+// ankit.createnewAccount("pnb");
+// console.log(ankit)
+// ankit.createnewAccount("CB");
+// console.log(ankit);
 
-ankit.withdraw(2000,"pnb");
-console.log(ankit)
-ankit.deposit(1100,"pnb");
-console.log(ankit)
-ankit.selfTransfer(500,"sbi","pnb");
-console.log(ankit)
+// ankit.withdraw(2000,"pnb");
+// console.log(ankit)
+// ankit.deposit(1100,"pnb");
+// console.log(ankit)
+// ankit.selfTransfer(500,"sbi","pnb");
+// console.log(ankit)
 
-const singh = Customer.createNewCustomer("Raj", "Singh")
-console.log(singh)
+// const singh = Customer.createNewCustomer("Raj", "Singh")
+// console.log(singh)
 
-singh.createnewAccount("sbi")
-singh.deposit(1100,"sbi");
-console.log(singh)
-ankit.transfer(280,2,"sbi","pnb")
-console.log(ankit)
-console.log(singh)
+// singh.createnewAccount("sbi")
+// singh.deposit(1100,"sbi");
+// console.log(singh)
+// ankit.transfer(280,2,"sbi","pnb")
+// console.log(ankit)
+// console.log(singh)

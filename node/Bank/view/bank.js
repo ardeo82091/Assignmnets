@@ -9,25 +9,28 @@ class Bank {
     }
 
     static createNewBank(bankname, bankAbbrevation) {
-        let [indexOfBank, isBankexist, bankproperty] = this.findBank(bankname, bankAbbrevation)
+        let [indexOfBank, isBankexist] = Bank.findBank(bankAbbrevation)
         if (isBankexist) {
-            return [nil,"Already Exists"];
+            return [null,"Bank Already Exists"];
         }
         let newBank = new Bank(bankname, bankAbbrevation)
         Bank.allBanks.push(newBank)
-        return newBank
+        return [newBank,"Bank Created"];
     }
 
     static findBank(bankAbbrevation) {
-        if (this.allBanks.length == 0) {
+        if (Bank.allBanks.length == 0) {
             return [null, false]
         }
-        for (let index = 0; index < Bank.allBanks.length; index++) {
-            const element = Bank.allBanks[index];
-            if (element.bankAbbrevation == bankAbbrevation) {
+        for (let index = 0; index < Bank.allBanks.length; index++)
+        {
+            if (Bank.allBanks[index].bankAbbrevation == bankAbbrevation) 
+            {
                 return [index, true]
             }
         }
         return [null, false]
     }
 }
+
+module.exports = Bank;
