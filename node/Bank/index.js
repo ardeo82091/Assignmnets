@@ -12,24 +12,6 @@ const Customer = require("./view/customer")
 const Bank = require("./view/bank");
 const JWTPayload = require('./view/authentication.js');
 
-app.post("/api/v1/login/:userName", async (req,resp)=>{
-    const userName = req.params.userName;
-    const password = req.body.password;
-    let [indexOfUser,isCustomerExist] = Customer.findCustomer(userName);
-    let isPasswordMatch = await Customer.allCustomers[indexOfUser].comparePassword(password);
-    if(!isCustomerExist || isPasswordMatch == false)
-    {
-        resp.status(504).send("Invalid Credentials")
-        return;
-    }
-    const newPayload = new JWTPayload(Customer.allCustomers[indexOfUser])
-    const newToken = newPayload.createToken();
-    resp.cookie("myToken",newToken)
-    //,{
-    //    expires:new Date(Date.now()+1*100000)
-    //}
-    resp.status(200).send("Loggin Done");
-})
 
 app.post("/api/v1/createBank",(req, resp)=>{
     let {bankname, bankAbbrevation} = req.body;
@@ -48,9 +30,9 @@ app.get("/api/v1/getAllBank",(req, resp)=>{
     return;
 })
 
-app.post("/api/v1/createCustomer",(req, resp)=>{
+app.post("/api/v1/createCustomer",async (req, resp)=>{
     let {firstname, lastname,userName,password} = req.body;
-    let [newCustomer,message] = Customer.createNewCustomer(firstname, lastname,userName,password);
+    let [newCustomer,message] = await Customer.createNewCustomer(firstname, lastname,userName,password);
     if(newCustomer== null)
     {
         resp.status(504).send(message);
@@ -65,8 +47,37 @@ app.get("/api/v1/getAllCustomer",(req, resp)=>{
     return;
 })
 
-app.post("/api/v1/createNewAccount",(req,resp)=>{
-    let {newCustomer,bankAbbrevation} = req.body;
+app.post("/api/v1/login/:userName", async (req,resp)=>{
+    const userName = req.params.userName;
+    const password = req.body.password;
+    let [indexOfUser,isCustomerExist] = Customer.findCustomer(userName);
+    if(indexOfUser == -1)
+    {
+        resp.status(504).send("No user Exists with this userName")
+        return;
+    }
+    let isPasswordMatch = await Customer.allCustomers[indexOfUser].comparePassword(password);
+    if(!isCustomerExist || isPasswordMatch == false)
+    {
+        resp.status(504).send("Invalid Credentials")
+        return;
+    }
+    const newPayload = new JWTPayload(Customer.allCustomers[indexOfUser])
+    const newToken = newPayload.createToken();
+    resp.cookie("myToken",newToken)
+    //,{
+    //    expires:new Date(Date.now()+1*100000)
+    //}
+    resp.status(200).send("Loggin Done");
+})
+
+app.post("/api/v1/createNewAccount/:newCustomer",(req,resp)=>{
+    let newCustomer = req.params.newCustomer;
+    const isValidCustomer =  JWTPayload.isValidCustomer(req,resp,newCustomer)
+    if(!isValidCustomer){
+        return;
+    }
+    let bankAbbrevation = req.body.bankAbbrevation;
     let [isNewAccount,message] = Customer.createnewAccount(bankAbbrevation,newCustomer);
     if(isNewAccount == null)
     {
@@ -79,6 +90,10 @@ app.post("/api/v1/createNewAccount",(req,resp)=>{
 
 app.post("/api/v1/UserAllAccount/:userName",(req,resp)=>{
     let userName = req.params.userName;
+    const isValidCustomer =  JWTPayload.isValidCustomer(req,resp,userName)
+    if(!isValidCustomer){
+        return;
+    }
     let [flag,allAccount,message] = Customer.getUserAllAccount(userName);
     if(flag== false)
     {
@@ -87,8 +102,13 @@ app.post("/api/v1/UserAllAccount/:userName",(req,resp)=>{
     resp.status(200).send(allAccount);
 })
 
-app.post("/api/v1/withDraw",(req,resp)=>{
-    let {userName,amount,debitBankAbbrevation} = req.body;
+app.post("/api/v1/withDraw/:userName",(req,resp)=>{
+    let userName = req.params.userName;
+    const isValidCustomer =  JWTPayload.isValidCustomer(req,resp,userName)
+    if(!isValidCustomer){
+        return;
+    }
+    let {amount,debitBankAbbrevation} = req.body;
     let [indexOfCustomer,isCustomerExists] = Customer.findCustomer(userName);
     if(!isCustomerExists)
     {
@@ -105,8 +125,14 @@ app.post("/api/v1/withDraw",(req,resp)=>{
     return;
 })
 
-app.post("/api/v1/deposit",(req,resp)=>{
-    let {userName,amount,creditBankAbbrevation} = req.body;
+app.post("/api/v1/deposit/:userName",(req,resp)=>{
+    
+    let userName = req.params.userName;
+    const isValidCustomer =  JWTPayload.isValidCustomer(req,resp,userName)
+    if(!isValidCustomer){
+        return;
+    }
+    let {amount,creditBankAbbrevation} = req.body;
     let [indexOfCustomer,isCustomerExists] = Customer.findCustomer(userName);
     if(!isCustomerExists)
     {
@@ -123,8 +149,13 @@ app.post("/api/v1/deposit",(req,resp)=>{
     return;
 })
 
-app.post("/api/v1/transfer",(req,resp)=>{
-    let {amount,creditCustomer,debitCustomer ,creditBankAbbrevation, debitBankAbbrevation} = req.body;
+app.post("/api/v1/transfer/:debitCustomer",(req,resp)=>{
+    let debitCustomer = req.params.debitCustomer;
+    const isValidCustomer =  JWTPayload.isValidCustomer(req,resp,debitCustomer)
+    if(!isValidCustomer){
+        return;
+    }
+    let {amount,creditCustomer,creditBankAbbrevation, debitBankAbbrevation} = req.body;
     let [indexOfCustomer,isCustomerExists] = Customer.findCustomer(debitCustomer);
     if(!isCustomerExists)
     {
@@ -141,8 +172,13 @@ app.post("/api/v1/transfer",(req,resp)=>{
     return;
 })
 
-app.post("/api/v1/selftransfer",(req,resp)=>{
-    let {amount,creditCustomer ,creditBankAbbrevation, debitBankAbbrevation} = req.body;
+app.post("/api/v1/selftransfer/:creditCustomer",(req,resp)=>{
+    let creditCustomer  = req.params.creditCustomer;
+    const isValidCustomer =  JWTPayload.isValidCustomer(req,resp,creditCustomer)
+    if(!isValidCustomer){
+        return;
+    }
+    let {amount,creditBankAbbrevation, debitBankAbbrevation} = req.body;
     let [indexOfCustomer,isCustomerExists] = Customer.findCustomer(creditCustomer);
     if(!isCustomerExists)
     {
@@ -158,6 +194,14 @@ app.post("/api/v1/selftransfer",(req,resp)=>{
     resp.status(200).send(message);
     return;
 })
+
+app.post("/api/v1/logout",(req,resp)=>{
+    resp.cookie("myToken",'none',{
+        expires: new Date(Date.now()+ 0*1000),
+    })
+    resp.status(200).send("User Logged out Successfully");
+})
+
 
 app.listen(8082,()=>{
     console.log("app is started at port 8082");
