@@ -1,9 +1,9 @@
+const uuid = require('uuid')
 class Bank {
-    static bankId = 0;
     static allBanks = []
 
     constructor(bankname, bankAbbrevation) {
-        this.bankId = Bank.bankId++;
+        this.bankId = uuid.v4();
         this.bankname = bankname;
         this.bankAbbrevation = bankAbbrevation;
     }

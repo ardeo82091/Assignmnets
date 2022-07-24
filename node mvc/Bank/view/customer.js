@@ -2,11 +2,11 @@ const Bank = require("./bank");
 const Account = require("./account");
 const Credential = require("./credential");
 const bcrypt = require("bcrypt");
+const uuid = require('uuid');
 class Customer {
     static allCustomers = [];
-    static customerID=0;
     constructor(fullname,credentials) {
-        this.customerID = Customer.customerID++;
+        this.customerID = uuid.v4();
         this.fullname = fullname;
         this.credentials= credentials;
         this.account = []

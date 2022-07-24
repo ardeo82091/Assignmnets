@@ -1,8 +1,7 @@
-const Bank = require("./bank");
+const uuid = require('uuid')
 class Account {
-    static accountId = 100;
     constructor(bankname) {
-        this.accountId = Account.accountId++
+        this.accountId = uuid.v4();
         this.bankAbbrevation = bankname
         this.balance = 1000
     }
