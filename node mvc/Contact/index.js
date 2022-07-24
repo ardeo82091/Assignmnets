@@ -8,8 +8,7 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(cookieParser())
 
-const User = require('./view/User.js');
-const JWTPayload = require('./view/authentication.js');
+
 const login = require('./Login/controller.js');
 const logout = require('./Logout/controller.js');
 const createContactDetail = require('./ContactDetail/controller.js');
