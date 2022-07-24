@@ -26,9 +26,9 @@ class JWTPayload{
         }
 
         const newPayload = JWTPayload.verifyCookie(myToken);
-        if(!newPayload.isActive && newPayload.userName == userName)
+        if(!newPayload.isActive || newPayload.userName != userName)
         {
-            resp.status(504).send("Admin Login Required");
+            resp.status(504).send(`${userName} login required`);
             return false
         }
         return true
