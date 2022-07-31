@@ -76,7 +76,7 @@ class Tests
     {
         if(this.isAttempted == true)
         {
-            return [true,"Attempted"];
+            return [true,"Test is Attempted"];
         }
         for(let index=0; index<this.question.length; index++)
         {
@@ -84,7 +84,7 @@ class Tests
             return [false,"Not All question Attempted"];
         }
         this.isAttempted = true;
-        return [true,"Attempted***"];
+        return [true,"Attempted test***"];
     }
 
 }
