@@ -88,4 +88,36 @@ function TechScore(req,resp)
     return;
 }
 
-module.exports = {MakeTest,TechScore}
+function SubmitTest(req,resp)
+{
+    const userName = req.params.userName;
+    let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
+    if(newPayload.userName != userName)
+    {
+        resp.status(504).send("please Login with correct Id")
+        return;
+    }
+    const tech = req.body.tech;
+    let [index,isUserExist] = User.findUser(userName);
+    if(!isUserExist)
+    {
+        resp.status(504).send("User not Exist");
+        return;
+    }
+    let [isTechExist,UserIndexOfTech,messi] = User.allUsers[index].isUserTech(tech);
+    if(!isTechExist)
+    {
+        resp.status(504).send(messi);
+        return;
+    }
+    let [isAttempted,mess]= User.allUsers[index].test[UserIndexOfTech].isTestAttempted();
+    if(isAttempted == true)
+    {
+        resp.status(504).send(mess);
+        return;
+    }
+    User.allUsers[index].test[UserIndexOfTech].isAttempted = true;
+    resp.status(201).send("Test is Submitted");
+
+}
+module.exports = {MakeTest,TechScore,SubmitTest}

@@ -105,6 +105,30 @@ class User
         }
         return [true,"All Test Attempted"];
     }
+
+    updateFirstname(newFirstname) {
+        this.firstName = newFirstname;
+    }
+    
+    updateLastName(newlastname) {
+        this.lastName = newlastname;
+    }
+
+    update(propertyToUpdate, value)
+    {
+        switch (propertyToUpdate) 
+        {
+            case "firstName": 
+                this.updateFirstname(value)
+                return true;
+
+            case "lastName": 
+                this.updateLastName(value)
+                return true;
+            
+            default: return false;
+        }
+    }
 }
 
 module.exports = User;

@@ -29,6 +29,30 @@ async function CreateUser(req,resp)
     return ;
 }
 
+function UpdateUser(req,resp)
+{
+    let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
+    if(newPayload.role != "admin")
+    {
+        resp.status(504).send("please specify this role to admin")
+        return;
+    }
+    let userName = req.body.userName;
+    let {propertyToUpdate,value} = req.body;
+    let [indexOfUser,isUserExist] = User.findUser(userName);
+    if(!isUserExist)
+    {
+        resp.status(504).send("User not exist");
+        return;
+    }
+    const isUpdate = User.allUsers[indexOfUser].update(propertyToUpdate,value);
+    if(!isUpdate){
+        resp.status(504).send("User not Updated")
+        return;
+    }
+    resp.status(201).send(User.allUsers[indexOfUser]);
+    return;
+}
 
 function AllUser(req,resp)
 {
@@ -41,7 +65,6 @@ function AllUser(req,resp)
     resp.status(201).send(User.allUsers);
     return;
 }
-
 
 function UserTotalScore(req,resp)
 {
@@ -89,4 +112,4 @@ function UserTotalScore(req,resp)
     return;
 }
 
-module.exports = {UserTotalScore,CreateUser,AllUser,createAdmin}
+module.exports = {UserTotalScore,CreateUser,AllUser,createAdmin,UpdateUser}

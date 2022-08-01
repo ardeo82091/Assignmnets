@@ -76,7 +76,7 @@ class Tests
     {
         if(this.isAttempted == true)
         {
-            return [true,"Test is Attempted"];
+            return [true,"Test is already Attempted"];
         }
         for(let index=0; index<this.question.length; index++)
         {
