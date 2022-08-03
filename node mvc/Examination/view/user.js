@@ -114,6 +114,14 @@ class User
         this.lastName = newlastname;
     }
 
+    updateCountry(country){
+        this.country = country;
+    }
+
+    updateExper(experience){
+        this.exper = experience;
+    }
+
     update(propertyToUpdate, value)
     {
         switch (propertyToUpdate) 
@@ -125,7 +133,15 @@ class User
             case "lastName": 
                 this.updateLastName(value)
                 return true;
-            
+
+            case "country":
+                this.updateCountry(value)
+                return true;
+                            
+            case "exper":
+                this.updateExper(value)
+                return true;
+                
             default: return false;
         }
     }

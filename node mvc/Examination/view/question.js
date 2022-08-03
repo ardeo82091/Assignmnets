@@ -16,25 +16,6 @@ class Question
         else this.outOffScore = 1;
         this.negativeMark = 0.25 * this.outOffScore;
     }
-
-    isCorrectAnswer(optionNo)
-    {
-        if(optionNo>4)
-        {
-            return [false,"option not Exist",0];
-        }
-        const ans = this.options[optionNo-1];
-        if(this.selectedAnswer != "")
-        {
-            return [false,"Already Attemptes",0];
-        }
-        this.selectedAnswer += ans;
-        if(this.selectedAnswer == this.correctAnswer)
-        {
-            return [true,"Correct answer",this.outOffScore];
-        }
-        return [false,"Not correct Answer",this.negativeMark];
-    }
 }
 
 module.exports = Question;

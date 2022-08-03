@@ -25,9 +25,9 @@ app.get('/api/v1/getAllUser',(req,resp)=> AllUser(req,resp));
 
 app.post('/api/v1/updateUser',(req,resp)=> UpdateUser(req,resp));
 
-app.post('/api/v1/attemptTest/:userName/:questionId',(req,resp)=>AttemptTest(req,resp));
+app.post('/api/v1/attemptTest/:userName/:tech',(req,resp)=>AttemptTest(req,resp));
 
-app.post('/api/v1/submitTest/:userName', (req,resp)=> SubmitTest(req,resp));
+app.post('/api/v1/submitTest/:userName/:tech', (req,resp)=> SubmitTest(req,resp));
 
 app.get('/api/v1/ScoreOfTech/:userName/:tech',(req,resp)=>TechScore(req,resp))
 

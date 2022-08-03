@@ -90,14 +90,36 @@ function TechScore(req,resp)
 
 function SubmitTest(req,resp)
 {
-    const userName = req.params.userName;
+
+    const {userName,tech} = req.params;
     let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
-    if(newPayload.userName != userName)
+    if(newPayload.role != "user")
     {
-        resp.status(504).send("please Login with correct Id")
+        resp.status(504).send("Login with User")
         return;
     }
-    const tech = req.body.tech;
+    if(newPayload.userName != userName )
+    {
+        resp.status(504).send("please specify the correct UserName")
+        return;
+    }
+    let j = 1
+    for(let q in req.body)
+    {
+        if(q != "que"+String(j)){
+            resp.status(403).send("Question no. is not correct"+j)
+            return
+        }
+        if(typeof(req.body[q])!="number"){
+            resp.status(403).send("Please pass a number instead of this in que"+j)
+            return
+        }
+        if(req.body[q]!=1 && req.body[q]!=2 && req.body[q]!=3 && req.body[q]!=4){
+            resp.status(403).send("There are only for options, So Choose wisely for que "+j)
+            return
+        }
+        j++
+    }
     let [index,isUserExist] = User.findUser(userName);
     if(!isUserExist)
     {
@@ -116,8 +138,26 @@ function SubmitTest(req,resp)
         resp.status(504).send(mess);
         return;
     }
-    User.allUsers[index].test[UserIndexOfTech].isAttempted = true;
-    resp.status(201).send("Test is Submitted");
-
+    const user = User.allUsers[index].test[UserIndexOfTech];
+    if(user.question.length == 0)
+    {
+        user.isAttempted = true;
+        user.score = 0;
+        user.outOffScore = 0;
+        resp.status(504).send("Test have not any question");
+        return;
+    }
+    j = 0  
+    for (let ans in req.body)
+    {
+        user.question[j].selectedAnswer += user.question[j].options[req.body[ans]-1];
+        j++;
+    }
+    User.allUsers[index].test[UserIndexOfTech].updateTestScore();
+    User.allUsers[index].test[UserIndexOfTech].testAttempted();
+    User.allUsers[index].updateUserScore();
+    resp.status(504).send("Test is submitted");
+    return;
 }
+
 module.exports = {MakeTest,TechScore,SubmitTest}
