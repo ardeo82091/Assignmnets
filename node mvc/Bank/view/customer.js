@@ -5,21 +5,37 @@ const bcrypt = require("bcrypt");
 const uuid = require('uuid');
 class Customer {
     static allCustomers = [];
-    constructor(fullname,credentials) {
+    constructor(fullname,credentials,role) {
         this.customerID = uuid.v4();
         this.fullname = fullname;
         this.credentials= credentials;
+        this.role = role;
         this.account = []
         this.totalBalance = 0
     }
-    static async createNewCustomer(firstname, lastname,userName,password) {
-        let fullname = `${firstname} ${lastname}`
-        let [indexOfCustomer,isCustomerExists] = Customer.findCustomer(userName);
-        if(isCustomerExists)
+
+    static async createBankManager(firstname,lastname,username,passworD)
+    {
+        let userName = username;
+        let password = passworD;
+        let firstName = firstname;
+        let lastName = lastname;
+        let role = "banker";
+        let fullname = `${firstName} ${lastName}` 
+        const [flag,message,newCredential] = Credential.createCredential(userName,password);
+        if(flag === false)
         {
-            return [null, "Customer Already Exists"];
+            return [null,"Username already Exist"];
         }
-        
+        newCredential.password = await newCredential.getHashPassword();
+        let newBanker = new Customer(fullname,newCredential,role);
+        Customer.allCustomers.push(newBanker);
+        return [newBanker,"Banker created Successfully"];
+    }
+
+    async createNewCustomer(firstname, lastname,userName,password) {
+        let fullname = `${firstname} ${lastname}`        
+        let role = "customer";
         const [flag,message,newCredential] = Credential.createCredential(userName,password);
         if(flag === false)
         {
@@ -27,7 +43,7 @@ class Customer {
         }
         
         newCredential.password = await newCredential.getHashPassword();
-        let newCustomer = new Customer(fullname,newCredential);
+        let newCustomer = new Customer(fullname,newCredential,role);
         Customer.allCustomers.push(newCustomer);
         return [newCustomer," Customer created Successfully"]
     }

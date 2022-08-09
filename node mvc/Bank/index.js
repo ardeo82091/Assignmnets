@@ -9,11 +9,12 @@ app.use(bodyParser.json())
 app.use(cookieParser())
 
 const { createBank,getAllBank } = require('./Bank/controller.js');
-const { createCustomer, getAllCustomer, getAllAccount, withDraw, deposit, transfer, selftransfer } = require('./Customer/controller');
+const { createBankManager,createCustomer, getAllCustomer, getAllAccount, withDraw, deposit, transfer, selftransfer } = require('./Customer/controller');
 const { login } = require('./Login/controller');
 const { createNewAccount } = require('./Account/controller');
 const logout = require('./Logout/controller');
 
+app.post("/api/v1/login/:userName", async (req,resp)=>login(req,resp));
 
 app.post("/api/v1/createBank",(req, resp)=>createBank(req,resp));
 
@@ -22,8 +23,6 @@ app.get("/api/v1/getAllBank",(req, resp)=>getAllBank(req,resp));
 app.post("/api/v1/createCustomer",async (req, resp)=>createCustomer(req,resp));
 
 app.get("/api/v1/getAllCustomer",(req, resp)=>getAllCustomer(req,resp));
-
-app.post("/api/v1/login/:userName", async (req,resp)=>login(req,resp));
 
 app.post("/api/v1/createNewAccount/:newCustomer",(req,resp)=>createNewAccount(req,resp));
 
@@ -41,5 +40,6 @@ app.post("/api/v1/logout",(req,resp)=>logout(req,resp));
 
 
 app.listen(8082,()=>{
+    createBankManager();
     console.log("app is started at port 8082");
 })

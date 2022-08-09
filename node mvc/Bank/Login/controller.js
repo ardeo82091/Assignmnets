@@ -19,7 +19,7 @@ async function login(req, resp)
     }
     const newPayload = new JWTPayload(Customer.allCustomers[indexOfUser])
     const newToken = newPayload.createToken();
-    resp.cookie("myToken",newToken)
+    resp.cookie("mytoken",newToken)
     //,{
     //    expires:new Date(Date.now()+1*100000)
     //}

@@ -5,6 +5,7 @@ class JWTPayload{
         this.userName = user.credentials.userName;
         this.fullName = user.fullName;
         this.customerID = user.customerID;
+        this.role = user.role;
     }
     createToken()
     {
