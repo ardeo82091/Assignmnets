@@ -8,13 +8,19 @@ function MakeTest(req,resp)
     let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
     if(newPayload.role != "admin")
     {
-        resp.status(504).send("please specify this role to admin")
+        resp.status(401).send("please specify this role to admin")
         return;
     }
     const tech = req.body.tech;
+
+    if (typeof tech != "string") {
+        resp.status(406).send("tech is invalid");
+        return;
+    }
+
     let [indexoFTech,istechExist] = Tests.findIndexOfTech(tech);
     if(istechExist) {
-       resp.status(201).send(Tests.allTest[indexoFTech].question); 
+       resp.status(403).send(Tests.allTest[indexoFTech].question); 
        return;
     }
     
@@ -38,25 +44,25 @@ function TechScore(req,resp)
     {
         if(newPayload.userName != userName)
         {
-            resp.status(504).send("please Login with correct Id")
+            resp.status(401).send("please Login with correct Id")
             return;
         }
         let [index,isUserExist] = User.findUser(userName);
         if(!isUserExist)
         {
-            resp.status(504).send("User not Exist");
+            resp.status(403).send("User not Exist");
             return;
         }
         let [isTechExist,UserIndexOfTech,messi] = User.allUsers[index].isUserTech(tech);
         if(!isTechExist)
         {
-            resp.status(504).send(messi);
+            resp.status(403).send(messi);
             return;
         }
         let [isAttempted,mess]= User.allUsers[index].test[UserIndexOfTech].isTestAttempted();
         if(!isAttempted)
         {
-            resp.status(504).send(mess);
+            resp.status(403).send(mess);
             return;
         }
         let testScore = User.allUsers[index].test[UserIndexOfTech].score;
@@ -67,19 +73,19 @@ function TechScore(req,resp)
     let [index,isUserExist] = User.findUser(userName);
     if(!isUserExist)
     {
-        resp.status(504).send("User not Exist");
+        resp.status(403).send("User not Exist");
         return;
     }
     let [isTechExist,UserIndexOfTech,messi] = User.allUsers[index].isUserTech(tech);
     if(!isTechExist)
     {
-        resp.status(504).send(messi);
+        resp.status(403).send(messi);
         return;
     }
     let [isAttempted,mess]= User.allUsers[index].test[UserIndexOfTech].isTestAttempted();
     if(!isAttempted)
     {
-        resp.status(504).send(mess);
+        resp.status(403).send(mess);
         return;
     }
     let testScore = User.allUsers[index].test[UserIndexOfTech].score;
@@ -95,12 +101,12 @@ function SubmitTest(req,resp)
     let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
     if(newPayload.role != "user")
     {
-        resp.status(504).send("Login with User")
+        resp.status(401).send("Login with User")
         return;
     }
     if(newPayload.userName != userName )
     {
-        resp.status(504).send("please specify the correct UserName")
+        resp.status(401).send("please Login with your UserName")
         return;
     }
     let j = 1
@@ -123,19 +129,19 @@ function SubmitTest(req,resp)
     let [index,isUserExist] = User.findUser(userName);
     if(!isUserExist)
     {
-        resp.status(504).send("User not Exist");
+        resp.status(403).send("User not Exist");
         return;
     }
     let [isTechExist,UserIndexOfTech,messi] = User.allUsers[index].isUserTech(tech);
     if(!isTechExist)
     {
-        resp.status(504).send(messi);
+        resp.status(403).send(messi);
         return;
     }
     let [isAttempted,mess]= User.allUsers[index].test[UserIndexOfTech].isTestAttempted();
     if(isAttempted == true)
     {
-        resp.status(504).send(mess);
+        resp.status(403).send(mess);
         return;
     }
     const user = User.allUsers[index].test[UserIndexOfTech];
@@ -144,7 +150,7 @@ function SubmitTest(req,resp)
         user.isAttempted = true;
         user.score = 0;
         user.outOffScore = 0;
-        resp.status(504).send("Test have not any question");
+        resp.status(403).send("Test have not any question");
         return;
     }
     j = 0  
@@ -156,7 +162,7 @@ function SubmitTest(req,resp)
     User.allUsers[index].test[UserIndexOfTech].updateTestScore();
     User.allUsers[index].test[UserIndexOfTech].testAttempted();
     User.allUsers[index].updateUserScore();
-    resp.status(504).send("Test is submitted");
+    resp.status(201).send("Test is submitted");
     return;
 }
 

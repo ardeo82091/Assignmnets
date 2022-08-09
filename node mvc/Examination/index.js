@@ -13,7 +13,7 @@ const { UserTotalScore, CreateUser, AllUser, createAdmin, UpdateUser} = require(
 const { MakeTest, TechScore ,SubmitTest} = require('./Controllers/Test/controller');
 const { CreateQuestion, AttemptTest } = require('./Controllers/Question/controller');
 
-app.post("/api/v1/login/:userName", async (req,resp)=> login(req,resp));
+app.post("/api/v1/login", async (req,resp)=> login(req,resp));
 
 app.post('/api/v1/MakeTest',(req,resp)=> MakeTest(req,resp));
 

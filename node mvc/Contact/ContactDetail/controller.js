@@ -3,14 +3,15 @@ const JWTPayload = require('../view/authentication.js')
 function createContactDetail(req,resp)
 {
     let userName = req.params.userName;
-    const isValidUser =  JWTPayload.isValidUser(req,resp,userName)
-    if(!isValidUser){
-        return "unauthorized access"
+    let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
+    if(newPayload.userName != userName){
+        resp.status(401).send("please login with correct userName")
+        return;
     }
     let [indexOfUser,isUserExist] = User.findUser(userName)
     if(!isUserExist)
     {
-        resp.status(504).send("User not Found");
+        resp.status(403).send("User not Found");
         return;
     }
     let firstName = req.params.firstName;
@@ -19,16 +20,27 @@ function createContactDetail(req,resp)
     let [indexOfContact,isContactExist] = User.allUsers[indexOfUser].indexOfContact(fullName);
     if(!isContactExist)
     {
-        resp.status(504).send("Contact doesnt Exist")
+        resp.status(403).send("Contact doesnt Exist")
         return;
     }
     const {type,value} = req.body;
-    let [isContactDetailsAdded,message] = User.allUsers[indexOfUser].contacts[indexOfContact].createContactDetails(type,value);
-    if(!isContactDetailsAdded){
-        resp.status(504).send(message)
+
+    if (typeof type != "string") {
+        resp.status(406).send("type is invalid");
         return;
     }
-    resp.status(200).send(message);
+
+    if (typeof value != "string" || typeof value != "number") {
+        resp.status(406).send("value is invalid");
+        return;
+    }
+
+    let [isContactDetailsAdded,message] = User.allUsers[indexOfUser].contacts[indexOfContact].createContactDetails(type,value);
+    if(!isContactDetailsAdded){
+        resp.status(403).send(message)
+        return;
+    }
+    resp.status(201).send(message);
     return message;
 }
 

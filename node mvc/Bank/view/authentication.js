@@ -14,22 +14,13 @@ class JWTPayload{
     {
         return jwt.verify(token,JWTPayload.secratekey)
     }
-    static isValidCustomer(req,resp,userName)
-    {
-        const myToken = req.cookies["myToken"];
-        if(!myToken)
-        {
-            resp.status(504).send("Login required");
-            return false
-        }
 
-        const newPayload = JWTPayload.verifyCookie(myToken);
-        if(newPayload.userName != userName)
-        {
-            resp.status(504).send("User Login Required");
+    static isValidateToken(req,resp,mytoken)
+    {
+        if (!mytoken) {
             return false
         }
-        return true
+        return JWTPayload.verifyCookie(mytoken)
     }
 }
 

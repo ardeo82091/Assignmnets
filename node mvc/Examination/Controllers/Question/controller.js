@@ -8,10 +8,35 @@ function CreateQuestion(req,resp)
     let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
     if(newPayload.role != "admin")
     {
-        resp.status(504).send("please specify this role to admin")
+        resp.status(401).send("please specify this role to admin")
         return;
     }
     const {tech,details,options,correctAnswer,complexity} = req.body;
+
+    if (typeof tech != "string") {
+        resp.status(406).send("tech is invalid");
+        return;
+    }
+
+    if (typeof details != "string") {
+        resp.status(406).send("details is invalid");
+        return;
+    }    
+    
+    if (typeof correctAnswer != "string") {
+        resp.status(406).send("correctAnswer is invalid");
+        return;
+    }
+
+    if (typeof complexity != "string") {
+        resp.status(406).send("complexity is invalid");
+        return;
+    }
+
+    if (typeof options != "object") {
+        resp.status(406).send("options is invalid");
+        return;
+    }
     let newQuestion = new Question(tech,details,options,correctAnswer,complexity);
     
     let [index,istechExist] = Tests.findIndexOfTech(tech);
@@ -23,7 +48,7 @@ function CreateQuestion(req,resp)
     } 
     Tests.allTest[index].insertQuestions(newQuestion);
    // Question.allQuestions.push(newQuestion);
-    resp.status(200).send(newQuestion);
+    resp.status(201).send(newQuestion);
     return;
 }
 
@@ -33,31 +58,31 @@ function AttemptTest(req,resp)
     let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
     if(newPayload.role != "user")
     {
-        resp.status(504).send("Login with User")
+        resp.status(401).send("Login with User")
         return;
     }
     if(newPayload.userName != userName )
     {
-        resp.status(504).send("please specify the correct UserName")
+        resp.status(401).send("please specify the correct UserName")
         return;
     }
     
     let [index,isUserExist] = User.findUser(userName);
     if(!isUserExist)
     {
-        resp.status(504).send("User not Exist");
+        resp.status(403).send("User not Exist");
         return;
     }
     let [isTechExist,UserIndexOfTech,messi] = User.allUsers[index].isUserTech(tech);
     if(!isTechExist)
     {
-        resp.status(504).send(messi);
+        resp.status(403).send(messi);
         return;
     }
     let [isAttempted,mess]= User.allUsers[index].test[UserIndexOfTech].isTestAttempted();
     if(isAttempted == true)
     {
-        resp.status(504).send(mess);
+        resp.status(403).send(mess);
         return;
     }
 

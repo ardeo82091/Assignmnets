@@ -2,18 +2,29 @@ const User = require('../../view/user')
 const JWTPayload = require('../../view/authentication');
 async function login(req,resp)
 {
-    const userName = req.params.userName;
+    const userName = req.body.userName;
     const password = req.body.password;
+
+    if (typeof userName != "string") {
+        resp.status(406).send("userName is invalid");
+        return;
+    }
+
+    if (typeof password != "string") {
+        resp.status(406).send("password is invalid");
+        return;
+    }
+
     let [indexOfUser,isUserExist] = User.findUser(userName);
     if(isUserExist == false)
     {
-        resp.status(504).send("No user Exists with this userName")
+        resp.status(403).send("No user Exists with this userName")
         return;
     }
     let isPasswordMatch = await User.allUsers[indexOfUser].comparePassword(password);
     if(isPasswordMatch == false)
     {
-        resp.status(504).send("Invalid Credentials")
+        resp.status(403).send("Invalid Credentials")
         return;
     }
     const newPayload = new JWTPayload(User.allUsers[indexOfUser]);
@@ -22,7 +33,7 @@ async function login(req,resp)
     //,{
     //    expires:new Date(Date.now()+1*100000)
     //}
-    resp.status(200).send("Loggin Done");
+    resp.status(201).send("Loggin Done");
 }
 
 module.exports = login;

@@ -16,7 +16,7 @@ const {createUser,getAllUser,adminDeleteUser, updateUser,createAdmin} = require(
 const {createContact,getAllContacts,deleteContact} = require('./Contact/controller.js')
 
 
-app.post("/api/v1/login/:userName", async (req,resp)=> login(req,resp));
+app.post("/api/v1/login", async (req,resp)=> login(req,resp));
 
 app.post("/api/v1/createuser",async(req,resp) =>  createUser(req,resp));
 

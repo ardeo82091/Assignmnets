@@ -19,8 +19,8 @@ async function createAdmin()
     return;
 }
 
-app.post("/api/v1/login/:userName", async (req,resp)=>{
-    const userName = req.params.userName;
+app.post("/api/v1/login", async (req,resp)=>{
+    const userName = req.body.userName;
     const password = req.body.password;
     let [indexOfUser,isUsenameExist] = User.findUser(userName);
     let isPassword = await User.allUsers[indexOfUser].comparePassword(password);

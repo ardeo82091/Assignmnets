@@ -120,20 +120,6 @@ class User
         return [false,"Contact not exist"]
     }
 
-    /**createContactDetail(fullName,type,value)
-    {
-        if(this.isActive == false) return [null ,false,"User is not active"];
-        let [indexofContact,iscontactexist] = this.indexOfContact(fullName);
-        if(iscontactexist == false) return [null,false, "User not found"];
-
-        let [isContactDetailsCreated,newContactDetail] = this.contacts[indexofContact].createContactDetails(type,value);
-        if(isContactDetailsCreated== false)
-        {
-            return [null,false, "This contact is not Active"];
-        }
-        return [newContactDetail,true,"Contact Detail Added"];
-    }**/
-
     getContact(fullName)
     {
         let [indexofContact,iscontactexist] = this.indexOfContact(fullName);
@@ -150,6 +136,10 @@ class User
     updateLastName(newlastname) {
         this.lastName = newlastname;
     }
+    updateUserName(value){
+        this.credential.userName = value
+    }
+
     update(propertyToUpdate, value)
     {
         switch (propertyToUpdate) 
@@ -162,6 +152,10 @@ class User
                 this.updateLastName(value)
                 return true;
             
+            case "userName":
+                this.updateUserName(value)
+                return true;
+
             default: return false;
         }
     }

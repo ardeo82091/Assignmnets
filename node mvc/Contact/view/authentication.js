@@ -16,40 +16,12 @@ class JWTPayload{
     {
         return jwt.verify(token,JWTPayload.secratekey)
     }
-    static isValidUser(req,resp,userName)
+    static isValidateToken(req,resp,mytoken)
     {
-        const myToken = req.cookies["myToken"];
-        if(!myToken)
-        {
-            resp.status(504).send("Login required");
+        if (!mytoken) {
             return false
         }
-
-        const newPayload = JWTPayload.verifyCookie(myToken);
-        if(!newPayload.isActive || newPayload.userName != userName)
-        {
-            resp.status(504).send(`${userName} login required`);
-            return false
-        }
-        return true
-    }
-
-    static isValidAdmin(req,resp)
-    {
-        const myToken = req.cookies["myToken"];
-        if(!myToken)
-        {
-            resp.status(504).send("Login required");
-            return false
-        }
-
-        const newPayload = JWTPayload.verifyCookie(myToken);
-        if(newPayload.role != "admin")
-        {
-            resp.status(504).send("Admin Login Required");
-            return false
-        }
-        return true
+        return JWTPayload.verifyCookie(mytoken)
     }
 }
 
