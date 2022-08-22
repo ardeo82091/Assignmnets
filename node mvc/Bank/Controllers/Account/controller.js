@@ -1,60 +1,26 @@
-const Customer = require("../view/customer")
-const JWTPayload = require('../view/authentication.js');
-
-let [banker,message] = [null,"Already exist"];
-async function createBankManager()
+const Customer = require("../../view/customer")
+const JWTPayload = require('../../view/authentication.js');
+function createNewAccount(req,resp)
 {
-    [banker,message] = await Customer.createBankManager("Ankit","Raj","ardeo","Papa@luv");
-    return;
-}
-
-async function createCustomer(req,resp)
-{
+    let newCustomer = req.params.newCustomer;
     let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
-    if(newPayload.role != "banker"){
-        resp.status(401).send("please specify this role to banker")
+    if(newPayload.userName != newCustomer){
+        resp.status(401).send("Login with Correct ID")
         return;
     }
-    let {firstname, lastname,userName,password} = req.body;
+    let bankAbbrevation = req.body.bankAbbrevation;
 
-    if (typeof firstname != "string") {
-        resp.status(406).send("FIrst Name is invalid");
+    if (typeof bankAbbrevation != "string") {
+        resp.status(406).send("BankAbbrevation is invalid");
         return;
-    }
-
-    if (typeof lastname != "string") {
-        resp.status(406).send("LastName is invalid");
-        return;
-    }    
-    
-    if (typeof userName != "string") {
-        resp.status(406).send("userName is invalid");
-        return;
-    }
-
-    if (typeof password != "string") {
-        resp.status(406).send("password is invalid");
-        return;
-    }
-
-    let [newCustomer,message] = await banker.createNewCustomer(firstname, lastname,userName,password);
-    if(newCustomer== null)
+    } 
+    let [isNewAccount,message] = Customer.createnewAccount(bankAbbrevation,newCustomer);
+    if(isNewAccount == null)
     {
         resp.status(403).send(message);
         return;
     }
-    resp.status(201).send(newCustomer);
-    return;
-}
-
-function getAllCustomer(req,resp)
-{
-    let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
-    if(newPayload.role != "banker"){
-        resp.status(401).send("please specify this role to banker")
-        return;
-    }
-    resp.status(201).send(Customer.allCustomers);
+    resp.status(201).send(isNewAccount);
     return;
 }
 
@@ -74,8 +40,11 @@ function getAllAccount(req,resp)
         {
             resp.status(403).send(message);
             return;
-        }
-        resp.status(201).send(allAccount);
+        }    
+        const { limit, pageNumber } = req.body;
+        let startIndex = (pageNumber - 1) * limit;
+        let endIndex = pageNumber * limit;
+        resp.status(201).send(allAccount.slice(startIndex,endIndex));
         return;
     }
     let [flag,allAccount,message] = Customer.getUserAllAccount(userName);
@@ -84,7 +53,40 @@ function getAllAccount(req,resp)
         resp.status(403).send(message);
         return;
     }
-    resp.status(201).send(allAccount);
+    const { limit, pageNumber } = req.body;
+    let startIndex = (pageNumber - 1) * limit;
+    let endIndex = pageNumber * limit;
+    resp.status(201).send(allAccount.slice(startIndex,endIndex));
+    return;
+}
+
+function numberOfAccount(req,resp)
+{
+    let userName = req.params.userName;
+    let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
+    if(newPayload.role != "banker")
+    {
+        if(newPayload.userName != userName)
+        {
+            resp.status(401).send("Login with your correct ID")
+            return;
+        }
+        let [flag,allAccount,message] = Customer.getUserAllAccount(userName);
+        if(flag== false)
+        {
+            resp.status(403).send(message);
+            return;
+        }
+        resp.status(201).send(allAccount.length.toString());
+        return;
+    }
+    let [flag,allAccount,message] = Customer.getUserAllAccount(userName);
+    if(flag== false)
+    {
+        resp.status(403).send(message);
+        return;
+    }
+    resp.status(201).send(allAccount.length.toString());
     return;
 }
 
@@ -141,7 +143,7 @@ function deposit(req,resp)
     }
 
     if (typeof creditBankAbbrevation != "string") {
-        resp.status(406).send("crditCardAbbrevation is invalid");
+        resp.status(406).send("creditBankAbbrevation is invalid");
         return;
     } 
 
@@ -169,7 +171,8 @@ function transfer(req,resp)
         resp.status(401).send("Login with Correct ID")
         return;
     }
-    let {amount,creditCustomer,creditBankAbbrevation, debitBankAbbrevation} = req.body;
+    let {amount,creditCustomer,creditBankAbbrevation} = req.body;
+    let debitBankAbbrevation = req.params.debitBankAbbrevation;
 
     if (typeof amount != "number") {
         resp.status(406).send("Amount is invalid");
@@ -214,7 +217,8 @@ function selftransfer(req,resp)
         resp.status(401).send("Login with Correct ID")
         return;
     }
-    let {amount,creditBankAbbrevation, debitBankAbbrevation} = req.body;
+    let debitBankAbbrevation = req.params.debitBankAbbrevation;
+    let {amount,creditBankAbbrevation} = req.body;
 
     if (typeof amount != "number") {
         resp.status(406).send("Amount is invalid");
@@ -247,4 +251,4 @@ function selftransfer(req,resp)
     return;
 }
 
-module.exports = {createBankManager,createCustomer,getAllCustomer,getAllAccount,withDraw,deposit,transfer,selftransfer};
+module.exports = {createNewAccount,getAllAccount,numberOfAccount,withDraw,deposit,transfer,selftransfer};

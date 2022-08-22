@@ -10,7 +10,7 @@ class Account {
         return this.bankAbbrevation==bankAbbrevation;
     }
 
-    isSufficientBalance(amount){
+    isSufficientBalance(){
         return this.balance>=1000;
     }
 }

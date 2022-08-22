@@ -5,11 +5,12 @@ const bcrypt = require("bcrypt");
 const uuid = require('uuid');
 class Customer {
     static allCustomers = [];
-    constructor(fullname,credentials,role) {
+    constructor(fullName,credentials,role) {
         this.customerID = uuid.v4();
-        this.fullname = fullname;
+        this.fullName = fullName;
         this.credentials= credentials;
         this.role = role;
+        this.isActive = true;
         this.account = []
         this.totalBalance = 0
     }
@@ -21,20 +22,23 @@ class Customer {
         let firstName = firstname;
         let lastName = lastname;
         let role = "banker";
-        let fullname = `${firstName} ${lastName}` 
+        let fullName = `${firstName} ${lastName}` 
         const [flag,message,newCredential] = Credential.createCredential(userName,password);
         if(flag === false)
         {
             return [null,"Username already Exist"];
         }
         newCredential.password = await newCredential.getHashPassword();
-        let newBanker = new Customer(fullname,newCredential,role);
+        let newBanker = new Customer(fullName,newCredential,role);
         Customer.allCustomers.push(newBanker);
         return [newBanker,"Banker created Successfully"];
     }
 
-    async createNewCustomer(firstname, lastname,userName,password) {
-        let fullname = `${firstname} ${lastname}`        
+    async createNewCustomer(firstName, lastName,userName,password) 
+    {
+        if(this.isActive == false) return [null,"Not able to create an Customer"];
+        if(this.role != "banker") return [null,"Please Specify the role to Banker to create a User"];
+        let fullName = `${firstName} ${lastName}`        
         let role = "customer";
         const [flag,message,newCredential] = Credential.createCredential(userName,password);
         if(flag === false)
@@ -43,19 +47,31 @@ class Customer {
         }
         
         newCredential.password = await newCredential.getHashPassword();
-        let newCustomer = new Customer(fullname,newCredential,role);
+        let newCustomer = new Customer(fullName,newCredential,role);
         Customer.allCustomers.push(newCustomer);
         return [newCustomer," Customer created Successfully"]
     }
 
     static findCustomer(userName) {
+        if(this.isActive == false) return [-1,false];
         if(Customer.allCustomers.length == 0) return [-1,false];
         for (let index = 0; index < Customer.allCustomers.length; index++) {
-            if (Customer.allCustomers[index].credentials.userName == userName) {
+            if (Customer.allCustomers[index].credentials.userName == userName && Customer.allCustomers[index].isActive == true) {
                 return [index, true];
             }
         }
         return [-1, false];
+    }
+
+    static isCustomerIdExists(customerId)
+    {
+        if(this.isActive == false) return [-1,false];
+        for (let index = 0; index < Customer.allCustomers.length; index++) {
+            if (Customer.allCustomers[index].customerID == customerId) {
+                return [index, true];
+            }
+        }
+        return [-1, false]; 
     }
 
     async comparePassword(password)
@@ -109,7 +125,12 @@ class Customer {
     }
 
     isAccountExist(bankAbbrevation) {
-        if (this.account.length == 0) {
+        if (this.isActive == false)
+        {
+            return [-1,false];
+        }
+        if (this.account.length == 0) 
+        {
             return [-1, false];
         }
         for (let index = 0; index < this.account.length; index++) 
@@ -170,6 +191,30 @@ class Customer {
     //     let [transfer,message]=this.transfer(amount, this.userName, creditBankAbbre, debitBankAbbre);
     //     return [transfer,message];
     // }
+
+    updateFirstname(newFullname) {
+        this.fullName = newFullname;
+    }
+
+    updateUserName(value){
+        this.credentials.userName = value
+    }
+
+    update(propertyToUpdate, value)
+    {
+        switch (propertyToUpdate) 
+        {
+            case "fullName": 
+                this.updateFirstname(value)
+                return true;
+            
+            case "userName":
+                this.updateUserName(value)
+                return true;
+
+            default: return false;
+        }
+    }
 
 }
 

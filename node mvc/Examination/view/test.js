@@ -88,10 +88,27 @@ class Tests
             if(this.question[index].selectedAnswer == this.question[index].correctAnswer)
             {
                 this.score += this.question[index].outOffScore;
-                return;
             }
-            this.score -= this.question[index].negativeMark;
-            return;
+            else if(this.question[index].selectedAnswer != this.question[index].correctAnswer)
+            {
+                this.score -= this.question[index].negativeMark;
+            }
+            
+        }
+    }
+
+    updateUser(answers)
+    {
+        for(let index=0; index<answers.length; index++)
+        {
+            for(let index1=0; index1<this.question.length; index1++)
+            {
+                if(answers[index].Id == this.question[index1].Id)
+                {
+                    this.question[index1].selectedAnswer = answers[index].selectedAnswer;
+                }
+            }
+            
         }
     }
 

@@ -2,17 +2,20 @@ const Credential = require('./credentials')
 const Tests = require('./test')
 const Stack = require('./stack');
 const bcrypt = require('bcrypt');
+const uuid = require('uuid');
 class User
 {
     static allUsers = [];
     constructor(firstName,lastName,role,exper,country,stack,credentials,test)
     {
+        this.UserId = uuid.v4();
         this.firstName = firstName;
         this.lastName = lastName;
         this.credentials = credentials;
         this.role = role;
         this.experience = exper;
         this.country = country;
+        this.isActive = true;
         this.stack = stack;
         this.test = test;
         this.totalTestScore = 0;
@@ -63,6 +66,10 @@ class User
 
     isUserTech(tech)
     {
+        if(this.isActive == false)
+        {
+            return [false,-1,"User is not Active"];
+        }
         if(this.stack.frontend == tech || this.stack.backend == tech || this.stack.dataBase == tech)
         {
             for(let index=0; index<this.test.length; index++)
@@ -75,8 +82,23 @@ class User
         return [false,-1,"This tech is not in the userList"];
     }
 
+    static isUserIdExists(userId)
+    {
+        if(this.isActive == false) return [-1,false];
+        for (let index = 0; index < User.allUsers.length; index++) {
+            if (User.allUsers[index].UserId == userId) {
+                return [index, true];
+            }
+        }
+        return [-1, false]; 
+    }
+
     updateUserScore()
     {
+        if(this.isActive == false)
+        {
+            return [false,-1,"User is not Active"];
+        }
         this.totalTestScore =0;
         for(let index = 0; index<this.test.length; index++)
         {
@@ -88,7 +110,7 @@ class User
     {
         for(let index = 0; index<User.allUsers.length; index++)
         {
-            if(User.allUsers[index].credentials.userName == userName)
+            if(User.allUsers[index].credentials.userName == userName && User.allUsers[index].isActive == true )
             {
                 return [index,true];
             }
@@ -98,6 +120,10 @@ class User
     
     allTestAttempted()
     {
+        if(this.isActive == false)
+        {
+            return [false,-1,"User is not Active"];
+        }
         for(let index=0; index<this.test.length; index++)
         {
             if(this.test[index].isAttempted != true)
@@ -119,27 +145,35 @@ class User
     }
 
     updateExper(experience){
-        this.exper = experience;
+        this.experience = experience;
+    }
+
+    updateUserName(userName){
+        this.credentials.userName = userName;
     }
 
     update(propertyToUpdate, value)
     {
         switch (propertyToUpdate) 
         {
-            case "firstName": 
+            case "FirstName": 
                 this.updateFirstname(value)
                 return true;
 
-            case "lastName": 
+            case "LastName": 
                 this.updateLastName(value)
                 return true;
 
-            case "country":
+            case "Country":
                 this.updateCountry(value)
                 return true;
                             
-            case "exper":
+            case "Experience":
                 this.updateExper(value)
+                return true;
+
+            case "UserName":
+                this.updateUserName(value)
                 return true;
                 
             default: return false;

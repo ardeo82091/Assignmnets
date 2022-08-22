@@ -6,7 +6,7 @@ const Tests = require('../../view/test');
 let [admin,message] = [null,"Already exist"];
 async function createAdmin()
 {
-    [admin,message] = await User.createAdmin("Ankit","Raj",20,"India","react","java","sql","ardeo","Papa@luv");
+    [admin,message] = await User.createAdmin("Ankit","Raj",20,"India","react","java","sql","ankit","ankit@123");
     return;
 }
 
@@ -121,7 +121,22 @@ function AllUser(req,resp)
         resp.status(401).send("please specify this role to admin")
         return;
     }
-    resp.status(201).send(User.allUsers);
+    const { limit, pageNumber } = req.body;
+    let startIndex = (pageNumber - 1) * limit;
+    let endIndex = pageNumber * limit;
+    resp.status(201).send(User.allUsers.slice(startIndex+1,endIndex+1));
+    return;
+}
+
+function NumberOfUser(req,resp)
+{
+    let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
+    if(newPayload.role != "admin")
+    {
+        resp.status(401).send("please specify this role to admin")
+        return;
+    }
+    resp.status(201).send(User.allUsers.length.toString());
     return;
 }
 
@@ -171,4 +186,23 @@ function UserTotalScore(req,resp)
     return;
 }
 
-module.exports = {UserTotalScore,CreateUser,AllUser,createAdmin,UpdateUser}
+function deleteUser(req,resp)
+{
+    let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
+    if(newPayload.role != "admin"){
+        resp.status(401).send("please specify this role to Banker")
+        return;
+    }
+    const UserId = req.body.UserId ;
+    let [UserIndex, isUserExists] = User.isUserIdExists(UserId );
+    if(!isUserExists)
+    {
+        resp.status(403).send("User not Found");
+        return;
+    }
+    (User.allUsers[UserIndex].isActive == true)? (User.allUsers[UserIndex].isActive = false) : (User.allUsers[UserIndex].isActive = true);
+    resp.status(201).send("Updated");
+    return;
+}
+
+module.exports = {UserTotalScore,CreateUser,AllUser,NumberOfUser,createAdmin,UpdateUser,deleteUser}

@@ -2,7 +2,7 @@ const ContactDetail = require("./contactDetail")
 const uuid = require("uuid");
 class Contact
 {
-    constructor(firstName,lastName)
+    constructor(firstName,lastName,fullName)
     {
         this.contactId = uuid.v4();
         this.firstName = firstName;
@@ -12,7 +12,7 @@ class Contact
     }
 
     createContactDetails(type,value){
-        if(this.isActive==false){
+        if(this.isContactActive==false){
             return [false,"Contact not found"]
         }
         for(let index=0; index<this.contactDetails.length; index++)
@@ -38,6 +38,29 @@ class Contact
         if(this.isContactActive == false) return [false,"Contact not found"];
         this.isContactActive = false;
         return[true,"Delete contact"];
+    }
+
+    updateFirstname(newFirstname) {
+        this.firstName = newFirstname;
+    }
+    updateLastName(newlastname) {
+        this.lastName = newlastname;
+    }
+
+    update(propertyToUpdate, value)
+    {
+        switch (propertyToUpdate) 
+        {
+            case "firstName": 
+                this.updateFirstname(value)
+                return true;
+
+            case "lastName": 
+                this.updateLastName(value)
+                return true;
+
+            default: return false;
+        }
     }
 }
 

@@ -5,9 +5,9 @@ class Credential
     static allCredentials = [];
     constructor(userName, password)
     {
+        this.CredentialId = uuid.v4();
         this.userName = userName;
         this.password = password;
-        this.CredentialId = uuid.v4();
     }
 
     async getHashPassword(){

@@ -16,6 +16,7 @@ class Question
         else this.outOffScore = 1;
         this.negativeMark = 0.25 * this.outOffScore;
     }
+
 }
 
 module.exports = Question;

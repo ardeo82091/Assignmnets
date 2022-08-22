@@ -1,5 +1,5 @@
-const JWTPayload = require('../view/authentication');
-const User = require('../view/User.js')
+const JWTPayload = require('../../view/authentication');
+const User = require('../../view/User.js')
 
 let [admin,message] = [null,"No Admin"];
 async function createAdmin()
@@ -27,7 +27,7 @@ async function createUser(req,resp)
         return;
     }
 
-    if (typeof userName != "string") {
+    if (typeof userName != "string" || userName == null) {
         resp.status(406).send("UserName is invalid");
         return;
     }
@@ -59,7 +59,25 @@ function getAllUser(req,resp)
         resp.status(401).send("please specify this role to admin")
         return;
     }
-    resp.status(201).send(User.allUsers)
+    const { limit, pageNumber } = req.body;
+    if (User.allUsers.length == 0) {
+        return resp.status(403).send("No user Exist");
+    }
+    
+  let startIndex = (pageNumber - 1) * limit;
+  let endIndex = pageNumber * limit;
+    resp.status(201).send(User.allUsers.slice(startIndex,endIndex));
+    return;
+}
+
+function noOfUsers(req,resp)
+{
+    let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
+    if(newPayload.role != "admin"){
+        resp.status(401).send("please specify this role to admin")
+        return;
+    }
+    resp.status(201).send(User.allUsers.length.toString());
     return;
 }
 
@@ -70,7 +88,7 @@ function updateUser(req,resp)
         resp.status(401).send("please specify this role to admin")
         return;
     }
-    let userName = req.params.userName;
+    let userName = req.body.userName;
     let {propertyToUpdate,value} = req.body;
 
     if (typeof propertyToUpdate != "string") {
@@ -94,32 +112,27 @@ function updateUser(req,resp)
         resp.status(403).send("User not Updated")
         return;
     }
-    resp.status(201).send(User.allUsers);
+    resp.status(201).send(User.allUsers[indexOfUser]);
     return;
 }
 
-function adminDeleteUser(req,resp)
+function deleteUser (req,resp)
 {
     let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
     if(newPayload.role != "admin"){
         resp.status(401).send("please specify this role to admin")
         return;
     }
-    let userName = req.params.userName;
-    let [indexOfUser,isUserExist] = User.findUser(userName);
-    if(!isUserExist)
+    const userId = req.body.userId;
+    let [userIndex, isUserExists] = User.isUserIdExists(userId);
+    if(!isUserExists)
     {
-        resp.status(403).send("User not Exist");
-       return;
-    }
-    let [isUserDeleted,message] = admin.adminDeleteUser(userName);
-    if(!isUserDeleted)
-    {
-        resp.status(403).send(message);
+        resp.status(403).send("User not Found");
         return;
     }
-    resp.status(201).send(message);
+    (User.allUsers[userIndex].isActive== true)? (User.allUsers[userIndex].isActive = false) : (User.allUsers[userIndex].isActive = true);
+    resp.status(201).send("Updated");
     return;
 }
 
-module.exports = {createUser,getAllUser,updateUser,adminDeleteUser,createAdmin};
+module.exports = {createUser,getAllUser,updateUser,createAdmin,deleteUser,noOfUsers};

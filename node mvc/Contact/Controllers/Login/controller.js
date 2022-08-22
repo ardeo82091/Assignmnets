@@ -1,10 +1,10 @@
-const User = require('../../view/user')
-const JWTPayload = require('../../view/authentication');
-async function login(req,resp)
+const User = require('../../view/User.js');
+const JWTPayload = require('../../view/authentication.js');
+async function login(req, resp)
 {
     const userName = req.body.userName;
     const password = req.body.password;
-
+    
     if (typeof userName != "string") {
         resp.status(406).send("userName is invalid");
         return;
@@ -15,19 +15,19 @@ async function login(req,resp)
         return;
     }
 
-    let [indexOfUser,isUserExist] = User.findUser(userName);
-    if(isUserExist == false)
+    let [indexOfUser,isUsenameExist] = User.findUser(userName);
+    if(!isUsenameExist)
     {
-        resp.status(403).send("No user Exists with this userName")
+        resp.status(401).send("UserName Not Exist");
         return;
     }
-    let isPasswordMatch = await User.allUsers[indexOfUser].comparePassword(password);
-    if(isPasswordMatch == false)
+    let isPassword = await User.allUsers[indexOfUser].comparePassword(password);
+    if(isPassword == false)
     {
-        resp.status(403).send("Invalid Credentials")
+        resp.status(401).send("Invalid Credentials")
         return;
     }
-    const newPayload = new JWTPayload(User.allUsers[indexOfUser]);
+    const newPayload = new JWTPayload(User.allUsers[indexOfUser])
     const newToken = newPayload.createToken();
     resp.cookie("mytoken",newToken)
     //,{
@@ -45,7 +45,7 @@ function validUser(req,resp)
         resp.status(401).send("Login require");
         return;
     }
-    if(newPayload.userName != userName && newPayload.role != "user"){
+    if(newPayload.userName != userName){
         resp.status(401).send("please login with correct userName")
         return;
     }
@@ -63,6 +63,4 @@ function validAdmin(req,resp)
     resp.status(201).send("LoggedIN")
     return;
 }
-
-module.exports = {login,validAdmin,validUser}
-
+module.exports = {login,validAdmin,validUser};

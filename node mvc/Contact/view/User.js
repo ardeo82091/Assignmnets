@@ -61,10 +61,10 @@ class User
 
     static findUser(userName)
     {
-        if(this.active == false) return [-1,false];
+        if(this.isActive == false) return [-1,false];
         for(let index=0; index<User.allUsers.length; index++)
         {
-            if(User.allUsers[index].credential.userName == userName)
+            if(User.allUsers[index].credential.userName == userName && User.allUsers[index].isActive == true)
             return [index,true];
         }
         return [-2,false];
@@ -86,6 +86,28 @@ class User
         return [true,"successfully Deleted"];
     }
 
+    static isUserIdExists(userId)
+    {
+        if(this.isActive == false) return [-1,false];
+        for(let index=0; index<User.allUsers.length; index++)
+        {
+            if(User.allUsers[index].UserId == userId)
+            return [index,true];
+        }
+        return [-2,false];
+    }
+
+    isContactIdExists(contactId)
+    {
+        if(this.isActive == false) return [-1,false];
+        for(let index=0; index<this.contacts.length; index++)
+        {
+            if(this.contacts[index].contactId == contactId)
+            return [index,true];
+        }
+        return [-2,false];
+    }
+
     createNewContact(firstName,lastName)
     {
         if(this.isActive == false) return [null, "User not found"];
@@ -94,7 +116,8 @@ class User
             if(this.contacts[index].firstName == firstName && this.contacts[index].lastName == lastName)
             return [null,"Name Already Existed, Please choose another Name "];
         }
-        let newContact = new Contact(firstName,lastName);
+        let fullName = `${firstName} ${lastName}`
+        let newContact = new Contact(firstName,lastName,fullName);
         this.contacts.push(newContact);
         return [newContact,"Contact created Suceefully"];
     }

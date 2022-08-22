@@ -1,5 +1,5 @@
-const Bank = require("../view/bank");
-const JWTPayload = require("../view/authentication")
+const Bank = require("../../view/bank");
+const JWTPayload = require("../../view/authentication")
 
 function createBank(req,resp)
 {
@@ -32,13 +32,18 @@ function createBank(req,resp)
 
 function getAllBank(req,resp)
 {
-    let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
-    if(newPayload.role != "banker"){
-        resp.status(401).send("please specify this role to banker")
-        return;
-    }
-    resp.status(201).send(Bank.allBanks);
+    const userName = req.body.userName;
+    const { limit, pageNumber } = req.body;
+    let startIndex = (pageNumber - 1) * limit;
+    let endIndex = pageNumber * limit;
+    resp.status(201).send(Bank.allBanks.slice(startIndex,endIndex));
     return;
 }
 
-module.exports = {createBank,getAllBank};
+function numberOfBank(req,resp)
+{
+    resp.status(201).send(Bank.allBanks.length.toString());
+    return;
+}
+
+module.exports = {createBank,getAllBank,numberOfBank};

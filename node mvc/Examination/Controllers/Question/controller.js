@@ -13,6 +13,20 @@ function CreateQuestion(req,resp)
     }
     const {tech,details,options,correctAnswer,complexity} = req.body;
 
+    console.log(options.length)
+    var ans=false;
+    for(let index=0; index<options.length; index++)
+    {
+        if(options[index]==correctAnswer){
+            ans = true;
+        }
+    }
+    if(ans!=true)
+    {
+        resp.status(406).send("Correct Answer is not in the options");
+        return;
+    }
+    
     if (typeof tech != "string") {
         resp.status(406).send("tech is invalid");
         return;
@@ -28,7 +42,7 @@ function CreateQuestion(req,resp)
         return;
     }
 
-    if (typeof complexity != "string") {
+    if (typeof complexity != "number") {
         resp.status(406).send("complexity is invalid");
         return;
     }
@@ -86,8 +100,34 @@ function AttemptTest(req,resp)
         return;
     }
 
-    resp.status(201).send(User.allUsers[index].test[UserIndexOfTech].question)
+    resp.status(201).send(User.allUsers[index].test[UserIndexOfTech].question);
+    return;
+}
+
+function TakeTest(req,resp)
+{
+    const userName = req.params.userName;
+    let newPayload = JWTPayload.isValidateToken(req, resp, req.cookies["mytoken"]);
+    if(newPayload.role != "user")
+    {
+        resp.status(401).send("Login with User")
+        return;
+    }
+    if(newPayload.userName != userName )
+    {
+        resp.status(401).send("please specify the correct UserName")
+        return;
+    }
+    
+    let [index,isUserExist] = User.findUser(userName);
+    if(!isUserExist)
+    {
+        resp.status(403).send("User not Exist");
+        return;
+    }
+    resp.status(201).send(User.allUsers[index].test);
+    return;
 
 }
 
-module.exports = {CreateQuestion,AttemptTest}
+module.exports = {CreateQuestion,AttemptTest,TakeTest}
